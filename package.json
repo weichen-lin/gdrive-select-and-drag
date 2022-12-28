@@ -1,16 +1,24 @@
 {
   "name": "rectangle-selection",
   "version": "1.0.0",
-  "description": "",
+  "description": "for my personal use rectangle selection on nextjs",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "author": "",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/WeiChen-Lin/rectangle-selection.git"
+  },
+  "keywords": [
+    "rectangle",
+    "nextjs",
+    "selection"
+  ],
+  "author": "WeiChen Lin",
   "license": "ISC",
-  "devDependencies": {
-    "@types/react": "^18.0.26",
-    "react": "^18.2.0",
-    "typescript": "^4.9.4"
-  }
+  "bugs": {
+    "url": "https://github.com/WeiChen-Lin/rectangle-selection/issues"
+  },
+  "homepage": "https://github.com/WeiChen-Lin/rectangle-selection#readme"
 }
