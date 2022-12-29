@@ -1,6 +1,9 @@
 {
-  "name": "react-rectangle-selection",
-  "version": "1.0.0",
+  "name": "@weichen-lin/react-rectangle-selection",
+  "publishConfig": {
+    "registry": "https://npm.pkg.github.com/weichen-lin"
+  },
+  "version": "1.0.1",
   "description": "for my personal use rectangle selection",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
@@ -8,14 +11,14 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/WeiChen-Lin/rectangle-selection.git"
+    "url": "git+https://github.com/weichen-lin/rectangle-selection.git"
   },
   "author": "WeiChen Lin",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/WeiChen-Lin/rectangle-selection/issues"
+    "url": "https://github.com/weichen-lin/rectangle-selection/issues"
   },
-  "homepage": "https://github.com/WeiChen-Lin/rectangle-selection#readme",
+  "homepage": "https://github.com/weichen-lin/rectangle-selection#readme",
   "devDependencies": {
     "@rollup/plugin-commonjs": "^24.0.0",
     "@rollup/plugin-node-resolve": "^15.0.1",
