@@ -3,7 +3,7 @@
   "publishConfig": {
     "registry": "https://npm.pkg.github.com/weichen-lin"
   },
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "for my personal use rectangle selection",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
@@ -29,6 +29,9 @@
     "rollup-plugin-dts": "^5.1.0",
     "tslib": "^2.4.1",
     "typescript": "^4.9.4"
+  },
+  "peerDependencies": {
+    "react": "^18.2.0"
   },
   "main": "dist/cjs/index.js",
   "module": "dist/esm/index.js",
