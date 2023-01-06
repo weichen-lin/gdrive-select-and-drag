@@ -121,10 +121,6 @@ export default class Selectable {
       this._selectionStore.canSelected
     )
 
-    console.log(
-      `isCtrlKey : ${isCtrlKey}\nisClickOnSelectable: ${isClickOnSelectable}\nonClickElement: ${onClickElement}\n`
-    )
-
     if (!onClickElement) {
       this._needClearStored = true
       const { x, y, right, bottom } =
@@ -174,7 +170,9 @@ export default class Selectable {
         if (!ele) return
         const { x, y, right, bottom } = ele.element.getBoundingClientRect()
 
-        const cloned = ele.element.cloneNode(true)
+        const cloned = this.transformFunc.transform.func(
+          ele.element.cloneNode(true) as HTMLElement
+        )
 
         addCss(cloned as HTMLElement, {
           position: 'absolute',
@@ -306,9 +304,11 @@ export default class Selectable {
             ...this.transformFunc.transform.css,
             top: 0,
             left: 0,
-            opacity: index > 0 ? '60%' : '90%',
+            opacity: '100%',
+            zIndex: 9 - index,
             transitionDuration: '0.3s',
-            transitionProperty: 'width height opacity top left'
+            transitionProperty: 'width height opacity top left',
+            transform: `translate(${index}px, ${index}px)`
           })
         }
       })
@@ -359,7 +359,7 @@ export default class Selectable {
             const memory =
               this._selectionStore.canSelected.get(key)?.memorizePosition
 
-            addCss(ele as HTMLElement, {
+            addCss(this.transformFunc.revert.func(ele) as HTMLElement, {
               ...this.transformFunc.revert.css,
               position: 'absolute',
               top: (memory?.y ?? 0) - y,
@@ -411,9 +411,12 @@ export default class Selectable {
   }
 
   destroy = () => {
+    this._document.removeEventListener('mousedown', this.onMouseDown)
     this._document.removeEventListener('mousemove', this.onDelayMove)
     this._document.removeEventListener('mousemove', this.onMouseMove)
     this._document.removeEventListener('mousemove', this.onDragMovetoCursor)
     this._document.removeEventListener('mouseup', this.onMouseUp)
+    this._selectContainer.remove()
+    this._dragContainer.remove()
   }
 }
