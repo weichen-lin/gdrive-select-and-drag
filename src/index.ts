@@ -22,6 +22,7 @@ export default class Selectable {
   private _gonnaStartDrag: boolean = false
   private _cacheLastElement: string = ''
   private _isDragging: boolean = false
+  private _canSroll: boolean = false
   private readonly _initMouseDown = new DOMRect()
   private readonly select_cb!: (...args: any[]) => any
   private readonly drag_cb!: (...args: any[]) => any
@@ -76,7 +77,7 @@ export default class Selectable {
       willChange: 'top, left, bottom, right, width, height',
       top: 0,
       left: 0,
-      position: 'fixed',
+      position: 'absolute',
       width: 0,
       height: 0,
       display: 'none'
@@ -102,8 +103,10 @@ export default class Selectable {
   onMouseDown = (evt: MouseEvent) => {
     this._document.addEventListener('mouseup', this.onMouseUp)
     const { clientX, clientY } = evt
-    this._initMouseDown.x = clientX
-    this._initMouseDown.y = clientY
+    const { scrollTop, scrollLeft } = this._selectBoundary
+
+    this._initMouseDown.x = clientX + scrollLeft
+    this._initMouseDown.y = clientY + scrollTop
 
     this._document.querySelectorAll('.selectable').forEach((e) => {
       const { x, y } = e.getBoundingClientRect()
@@ -150,6 +153,7 @@ export default class Selectable {
 
       if (!isStoredAlready) {
         const currentElement = Array.from(this._selectionStore.stored)
+
         this.storeManipulate(currentElement, (e: string) => {
           return this._selectionStore.stored.includes(e)
             ? StoreAction.Delete
@@ -253,15 +257,23 @@ export default class Selectable {
 
     if (this._isMouseDownAtSelectBoundary) {
       const { clientX, clientY } = evt
+
+      // x, y 已經是加上 scroll的長度了
       const { x, y } = this._initMouseDown
+
       const { x: boundary_x, y: boundary_y } =
         this._selectBoundary.getBoundingClientRect()
 
+      const { scrollLeft, scrollTop } = this._selectBoundary
+      const currentX = clientX + scrollLeft
+      const currentY = clientY + scrollTop
+
       addCss(this._selectArea, {
-        width: clientX >= x ? clientX - x : x - clientX,
-        height: clientY >= y ? clientY - y : y - clientY,
-        top: clientY >= y ? y - boundary_y : clientY - boundary_y,
-        left: clientX >= x ? x - boundary_x : clientX - boundary_x,
+        width: currentX >= x ? currentX - x : x - currentX,
+        height: currentY >= y ? currentY - y : y - currentY,
+        top: currentY >= y ? y - scrollTop - boundary_y : clientY - boundary_y,
+        left:
+          currentX >= x ? x - scrollLeft - boundary_x : clientX - boundary_x,
         display: 'block'
       })
 
