@@ -271,9 +271,9 @@ export default class Selectable {
       addCss(this._selectArea, {
         width: currentX >= x ? currentX - x : x - currentX,
         height: currentY >= y ? currentY - y : y - currentY,
-        top: currentY >= y ? y - scrollTop - boundary_y : clientY - boundary_y,
+        top: currentY >= y ? y - boundary_y - scrollTop : clientY - boundary_y,
         left:
-          currentX >= x ? x - scrollLeft - boundary_x : clientX - boundary_x,
+          currentX >= x ? x - boundary_x - scrollLeft : clientX - boundary_x,
         display: 'block'
       })
 
