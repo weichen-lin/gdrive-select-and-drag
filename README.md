@@ -1,4 +1,5 @@
-![截圖 2023-01-11 下午1 59 52](https://user-images.githubusercontent.com/60848391/211729421-39d5457d-5a9c-426d-a9c5-31ad5d1c2808.png)
+![截圖 2023-01-11 下午2 02 53](https://user-images.githubusercontent.com/60848391/211729673-b48371a0-8d75-46b0-b0fe-92ceb22a6b78.png)
+
 
 # gdrive-select-and-drag
 
