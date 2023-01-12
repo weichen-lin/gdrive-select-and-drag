@@ -10,7 +10,7 @@ This is a libary to satisfy the function of selecting and dragging the selected 
 
 ## 🚀 How to use
 
-```css!
+```css
 .selection-area {
   border: 1px solid rgba(20, 20, 20, 0.06);
   background-color: rgba(20, 20, 20, 0.06);
@@ -18,56 +18,52 @@ This is a libary to satisfy the function of selecting and dragging the selected 
 }
 ```
 
-```typescript!
-  const root = createRef<HTMLDivElement>()
+```typescript
+const root = createRef<HTMLDivElement>()
 
-  useEffect(() => {
+useEffect(() => {
+  // init selectable config
+  const selection = new Selectable({
+    // for selection boundary
+    boundary: root?.current as HTMLDivElement,
 
-    // init selectable config
-    const selection = new Selectable({
+    // select box styling name ** must have
+    selectAreaClassName: 'selection-area',
 
-      // for selection boundary
-      boundary: root?.current as HTMLDivElement,
+    // element which can select need to add into classList
+    selectablePrefix: 'selectable',
 
-      // select box styling name ** must have
-      selectAreaClassName: 'selection-area',
+    // callback function for selected element
+    select_cb: handleSelected,
 
-      // element which can select need to add into classList
-      selectablePrefix: 'selectable',
+    // callback function for dragged element
+    drag_cb: handleDragged,
 
-      // callback function for selected element
-      select_cb: handleSelected,
-
-      // callback function for dragged element
-      drag_cb: handleDragged,
-
-
-      transformFunc: {
-        // transform dragged element to willing style
-        transform: {
-          func: handleTransform,
-          css: {
-            width: 200,
-            margin: 0,
-            height: 48,
-            textAlign: 'left'
-          }
-        },
-        // revert dragged element to willing style
-        revert: {
-          func: handleRevert,
-          css: {
-            width: 220,
-            margin: 0,
-            opacity: '100%',
-            willChange: 'top left width height'
-          }
-        },
-        // adjust postion for dragged number
-        iconPositionX: 200
-      }
-    })
-    return () => selection.destroy()
-  }, [])
-
+    transformFunc: {
+      // transform dragged element to willing style
+      transform: {
+        func: handleTransform,
+        css: {
+          width: 200,
+          margin: 0,
+          height: 48,
+          textAlign: 'left'
+        }
+      },
+      // revert dragged element to willing style
+      revert: {
+        func: handleRevert,
+        css: {
+          width: 220,
+          margin: 0,
+          opacity: '100%',
+          willChange: 'top left width height'
+        }
+      },
+      // adjust postion for dragged number
+      iconPositionX: 200
+    }
+  })
+  return () => selection.destroy()
+}, [])
 ```
