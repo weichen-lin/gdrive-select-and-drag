@@ -22,7 +22,6 @@ export default class Selectable {
   private _gonnaStartDrag: boolean = false
   private _cacheLastElement: string = ''
   private _isDragging: boolean = false
-  private _canSroll: boolean = false
   private readonly _initMouseDown = new DOMRect()
   private readonly select_cb!: (...args: any[]) => any
   private readonly drag_cb!: (...args: any[]) => any
