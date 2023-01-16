@@ -67,34 +67,42 @@ const App = () => {
   }
 
   useEffect(() => {
-    const a = new Selectable({
-      boundary: root?.current as HTMLDivElement,
-      selectAreaClassName: 'selection-area',
-      selectablePrefix: 'selectable',
-      select_cb: handleSelected,
-      drag_cb: handleDragged,
-      transformFunc: {
-        transform: {
-          func: handleTransform,
-          css: {
-            width: 200,
-            margin: 0,
-            height: 80,
-            textAlign: 'center'
-          }
-        },
-        revert: {
-          func: handleRevert,
-          css: {
-            width: 108,
-            margin: 30,
-            opacity: '100%',
-            willChange: 'top left width height'
-          }
-        },
-        iconPositionX: 200
-      }
-    })
+    // init selectable config
+  const selection = new Selectable({
+    // for selection boundary
+    boundary: root?.current as HTMLDivElement,
+    // select box styling name ** must have
+    selectAreaClassName: 'selection-area',
+    // element which can select need to add into classList
+    selectablePrefix: 'selectable',
+    // callback function for selected element
+    select_cb: handleSelected,
+    // callback function for dragged element
+    drag_cb: handleDragged,
+    transformFunc: {
+      // transform dragged element to willing style
+      transform: {
+        func: handleTransform,
+        css: {
+          width: 200,
+          margin: 0,
+          height: 48,
+          textAlign: 'left'
+        }
+      },
+      // revert dragged element to willing style
+      revert: {
+        func: handleRevert,
+        css: {
+          width: 220,
+          margin: 0,
+          opacity: '100%',
+          willChange: 'top left width height'
+        }
+      },
+      // adjust postion for dragged number
+      iconPositionX: 200
+    }
   }, [])
 
   return (
