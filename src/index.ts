@@ -17,6 +17,7 @@ export default class Selectable {
   private readonly _document = window?.document
   private readonly _selectBoundary!: HTMLElement
   private readonly _dragContainer!: HTMLElement
+  private readonly _canStartSelect!: boolean
   private _isMouseDownAtSelectBoundary: boolean = false
   private _needClearStored: boolean = false
   private _gonnaStartDrag: boolean = false
@@ -54,7 +55,7 @@ export default class Selectable {
     this._selectArea.classList.add(params.selectAreaClassName)
     this._selectContainer.appendChild(this._selectArea)
     this._selectBoundary = params.boundary
-
+    this._canStartSelect = params.canStartSelect
     this._dragContainer = this._document.createElement('div')
     this._dragContainer.id = 'dragContainer'
     this.select_cb = params.select_cb
@@ -100,6 +101,10 @@ export default class Selectable {
   }
 
   onMouseDown = (evt: MouseEvent) => {
+    if (!this._canStartSelect) {
+      console.log('can"t start select now')
+      return
+    }
     this._document.addEventListener('mouseup', this.onMouseUp)
     const { clientX, clientY } = evt
     const { scrollTop, scrollLeft } = this._selectBoundary

@@ -20,6 +20,7 @@ export interface selectionParams {
   select_cb: (...args: any[]) => any
   drag_cb: (...args: any[]) => any
   transformFunc: TransformMethod
+  canStartSelect: boolean
 }
 
 export enum StoreAction {
