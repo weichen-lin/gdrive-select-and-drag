@@ -1,0 +1,30 @@
+body {
+  padding: 0;
+  margin: 0;
+}
+
+.container {
+  width: 50%;
+  height: 50vh;
+  background-color: #efe9e9;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 20px;
+  padding: 20px;
+  overflow: scroll;
+}
+
+.box {
+  width: 60px;
+  height: 60px;
+  background-color: #444f47;
+  border-radius: 10px;
+}
+
+.selection-area {
+  border: 2px solid rgba(20, 20, 20, 0.6);
+  background-color: rgba(2, 2, 2, 0.06);
+  border-radius: 5px;
+}
