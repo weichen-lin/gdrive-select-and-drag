@@ -19,8 +19,12 @@ body {
 .box {
   width: 60px;
   height: 60px;
-  background-color: #444f47;
+  background-color: #c3c7c4;
   border-radius: 10px;
+}
+
+.selected {
+  background-color: #2c5f39;
 }
 
 .selection-area {
