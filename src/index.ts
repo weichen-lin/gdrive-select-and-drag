@@ -1,7 +1,7 @@
 import addCss from './utils/addCss'
 import intersects from './utils/intersects'
 import checkClickStatus from './utils/clickStatus'
-import makeNum from './utils/makeNum'
+import makeNum, { NUM_ELEMENT_ID } from './utils/makeNum'
 
 import { selectionStore, selectionParams, selectedElement, StoreAction, TransformMethod } from './utils/types'
 
@@ -17,6 +17,7 @@ export default class Selectable {
   private _gonnaStartDrag: boolean = false
   private _cacheLastElement: string = ''
   private _isDragging: boolean = false
+  private lastMouseDownTime = new Date().getTime()
   private readonly _initMouseDown = new DOMRect()
   private readonly select_cb!: (...args: any[]) => any
   private readonly drag_cb!: (...args: any[]) => any
@@ -95,8 +96,13 @@ export default class Selectable {
   }
 
   onMouseDown = (evt: MouseEvent) => {
+    if (evt.button !== 0) return
+    const current = new Date().getTime()
+    if (current - this.lastMouseDownTime < 250) return
+    this.lastMouseDownTime = current
     if (!this._canStartSelect) {
       console.log('can"t start select now')
+      this._selectBoundary.removeEventListener('mousedown', this.onMouseDown)
       return
     }
     this._document.addEventListener('mouseup', this.onMouseUp)
@@ -156,6 +162,7 @@ export default class Selectable {
 
       this._cacheLastElement = onClickElement
       this._gonnaStartDrag = true
+
       this._selectionStore.stored.forEach(key => {
         const ele = this._selectionStore.canSelected.get(key)
         if (!ele) return
@@ -172,19 +179,18 @@ export default class Selectable {
           willChange: 'top left width height',
           border: '2px solid #eeeee4',
         })
-        addCss(this._dragContainer as HTMLElement, {
-          position: 'fixed',
-          top: this._initMouseDown.y,
-          left: this._initMouseDown.x,
-          width: right - x,
-          height: bottom - y,
-          margin: 0,
-          opacity: '100%',
-          willChange: 'top left width height',
-        })
-
         this._dragContainer.appendChild(cloned)
       })
+
+      addCss(this._dragContainer as HTMLElement, {
+        position: 'fixed',
+        top: this._initMouseDown.y,
+        left: this._initMouseDown.x,
+        margin: 0,
+        opacity: '100%',
+        willChange: 'top left width height',
+      })
+
       this._document.addEventListener('mousemove', this.onDelayMove)
     }
   }
@@ -296,7 +302,7 @@ export default class Selectable {
     if (targets?.length) {
       Array.from(targets).forEach((ele, index) => {
         const stackMaxPosition = index > 3 ? 3 : index
-        if (ele.id !== 'nums_of_element') {
+        if (ele.id !== NUM_ELEMENT_ID) {
           addCss(ele as HTMLElement, {
             top: 0,
             left: 0,
@@ -311,10 +317,7 @@ export default class Selectable {
     }
 
     if (this._gonnaStartDrag) {
-      const numElement = makeNum(this._selectionStore.stored.length.toString(), {
-        x: 65,
-        y: -12,
-      })
+      const numElement = makeNum(this._selectionStore.stored.length.toString())
 
       setTimeout(() => {
         addCss(numElement, { opacity: '100%' })
@@ -346,7 +349,7 @@ export default class Selectable {
 
       if (targets?.length) {
         Array.from(targets).forEach(ele => {
-          if (ele.id !== 'nums_of_element') {
+          if (ele.id !== NUM_ELEMENT_ID) {
             const key = ele.getAttribute('data-key')
             if (!key) return
             const memory = this._selectionStore.canSelected.get(key)?.memorizePosition
@@ -399,12 +402,12 @@ export default class Selectable {
   }
 
   destroy = () => {
-    this._selectBoundary.removeEventListener('mousedown', this.onMouseDown)
+    this._selectBoundary?.removeEventListener('mousedown', this.onMouseDown)
     this._document.removeEventListener('mousemove', this.onDelayMove)
     this._document.removeEventListener('mousemove', this.onMouseMove)
     this._document.removeEventListener('mousemove', this.onDragMovetoCursor)
     this._document.removeEventListener('mouseup', this.onMouseUp)
-    this._selectContainer.remove()
-    this._dragContainer.remove()
+    this._selectContainer?.remove()
+    this._dragContainer?.remove()
   }
 }

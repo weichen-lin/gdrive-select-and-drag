@@ -10,17 +10,12 @@ export default function App() {
   useEffect(() => {
     const selection = new Selectable({
       canStartSelect: true,
-      // for selection boundary
       boundary: ref?.current as HTMLDivElement,
-      // select box styling name ** must have
       selectAreaClassName: 'selection-area',
-      // element which can select need to add into classList
       selectablePrefix: 'selectable',
-      // callback function for selected element
       select_cb: e => {
         setSelected([...e.stored])
       },
-      // callback function for dragged element
       drag_cb: () => console.log('dragging'),
     })
 
