@@ -2,7 +2,7 @@ import addCss from './addCss'
 
 export const NUM_ELEMENT_ID = 'nums_of_element'
 
-export default (num: string) => {
+export default (num: string, left: number) => {
   const numElement = document.createElement('div')
   numElement.textContent = num
   numElement.id = 'nums_of_element'
@@ -18,7 +18,7 @@ export default (num: string) => {
     fontSize: 16,
     lineHeight: 24,
     top: -12,
-    left: 120,
+    left: left - 12,
     transitionProperty: 'opacity',
     transitionDuration: '0.3s',
     opacity: '0%',

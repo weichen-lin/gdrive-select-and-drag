@@ -3,7 +3,16 @@ import intersects from './utils/intersects'
 import checkClickStatus from './utils/clickStatus'
 import makeNum, { NUM_ELEMENT_ID } from './utils/makeNum'
 
-import { selectionStore, selectionParams, selectedElement, StoreAction, TransformMethod } from './utils/types'
+import {
+  selectionStore,
+  selectionParams,
+  selectedElement,
+  StoreAction,
+  TransformMethod,
+  DragStatus,
+} from './utils/types'
+
+export { DragStatus }
 
 export default class Selectable {
   private readonly _selectContainer!: HTMLElement
@@ -18,6 +27,7 @@ export default class Selectable {
   private _cacheLastElement: string = ''
   private _isDragging: boolean = false
   private lastMouseDownTime = new Date().getTime()
+  private numLabelWith: number = 0
   private readonly _initMouseDown = new DOMRect()
   private readonly select_cb!: (...args: any[]) => any
   private readonly drag_cb!: (...args: any[]) => any
@@ -166,9 +176,13 @@ export default class Selectable {
       this._selectionStore.stored.forEach(key => {
         const ele = this._selectionStore.canSelected.get(key)
         if (!ele) return
-        const { x, y, right, bottom } = ele.element.getBoundingClientRect()
+        const { x, y } = ele.element.getBoundingClientRect()
 
-        const cloned = this.transformFunc ? this.transformFunc.transform.func(ele.element) : ele.element.cloneNode(true)
+        const { offsetWidth, offsetHeight } = ele.element as HTMLElement
+
+        const cloned = this.transformFunc
+          ? (this.transformFunc.transform.func(ele.element) as HTMLElement)
+          : (ele.element.cloneNode(true) as HTMLElement)
 
         addCss(cloned as HTMLElement, {
           position: 'absolute',
@@ -178,8 +192,11 @@ export default class Selectable {
           opacity: '0%',
           willChange: 'top left width height',
           border: '2px solid #eeeee4',
+          width: offsetWidth,
+          height: offsetHeight,
         })
         this._dragContainer.appendChild(cloned)
+        if (offsetWidth > this.numLabelWith) this.numLabelWith = offsetWidth
       })
 
       addCss(this._dragContainer as HTMLElement, {
@@ -213,17 +230,19 @@ export default class Selectable {
       this.storeManipulate(this._cacheLastElement, () => StoreAction.Delete)
     }
 
-    this.drag_cb({
-      stored: [],
-      changed: { added: [], removed: [] },
-    })
-
     this._needClearStored = false
     this._cacheLastElement = ''
 
     this._gonnaStartDrag = false
 
     if (this._isDragging) {
+      this.drag_cb(
+        {
+          stored: [],
+          changed: { added: [], removed: [] },
+        },
+        DragStatus.End,
+      )
       this.OnDragEnd(true)
     }
 
@@ -296,7 +315,7 @@ export default class Selectable {
 
   onDelayMove = () => {
     this._cacheLastElement = ''
-    this.drag_cb(this._selectionStore)
+    this.drag_cb(this._selectionStore, DragStatus.Start)
 
     const targets = this._document.querySelector('#dragContainer')?.children
     if (targets?.length) {
@@ -317,7 +336,7 @@ export default class Selectable {
     }
 
     if (this._gonnaStartDrag) {
-      const numElement = makeNum(this._selectionStore.stored.length.toString())
+      const numElement = makeNum(this._selectionStore.stored.length.toString(), this.numLabelWith)
 
       setTimeout(() => {
         addCss(numElement, { opacity: '100%' })

@@ -13,12 +13,17 @@ export interface selectionStore {
   }
 }
 
+export enum DragStatus {
+  Start,
+  End,
+}
+
 export interface selectionParams {
   boundary: HTMLDivElement
   selectAreaClassName: string
   selectablePrefix: string
   select_cb: (...args: any[]) => any
-  drag_cb: (...args: any[]) => any
+  drag_cb: (stored: selectionStore['stored'], status: DragStatus) => any
   transformFunc?: TransformMethod
   canStartSelect: boolean
 }
