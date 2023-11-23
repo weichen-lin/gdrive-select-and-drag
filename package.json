@@ -1,8 +1,5 @@
 {
-  "name": "@weichen-lin/gdrive-select-and-drag",
-  "publishConfig": {
-    "registry": "https://npm.pkg.github.com/weichen-lin"
-  },
+  "name": "gdrive-select-and-drag",
   "version": "1.0.0",
   "description": "for my personal use rectangle selection",
   "scripts": {
@@ -13,7 +10,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/weichen-lin/gdrive-select-and-drag.git"
+    "url": "https://github.com/weichen-lin/gdrive-select-and-drag"
   },
   "author": "WeiChen Lin",
   "license": "ISC",
@@ -44,10 +41,10 @@
     "react": ">=16",
     "react-dom": ">=16"
   },
-  "main": "dist/cjs/index.js",
+  "main": "dist/esm/index.js",
   "module": "dist/esm/index.js",
   "files": [
     "dist"
   ],
-  "types": "dist/index.d.ts"
+  "types": "dist/esm/types/index.d.ts"
 }
