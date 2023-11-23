@@ -19,13 +19,13 @@ export enum DragStatus {
 }
 
 export type DragCallback = (stored: selectionStore['stored'], status: DragStatus, dragOn: string | null) => any
+export type SelectCallback = (stored: selectionStore['stored']) => any
 
 export interface selectionParams {
-  boundary: HTMLDivElement
   selectAreaClassName: string
   selectablePrefix: string
-  select_cb: (...args: any[]) => any
-  drag_cb: DragCallback
+  select_cb?: (...args: any[]) => any
+  drag_cb?: DragCallback
   transformFunc?: TransformMethod
   canStartSelect: boolean
 }

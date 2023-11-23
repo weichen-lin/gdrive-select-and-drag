@@ -3,7 +3,7 @@
   "publishConfig": {
     "registry": "https://npm.pkg.github.com/weichen-lin"
   },
-  "version": "1.0.3",
+  "version": "1.0.0",
   "description": "for my personal use rectangle selection",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
@@ -13,14 +13,14 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/weichen-lin/rectangle-selection.git"
+    "url": "git+https://github.com/weichen-lin/gdrive-select-and-drag.git"
   },
   "author": "WeiChen Lin",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/weichen-lin/rectangle-selection/issues"
+    "url": "https://github.com/weichen-lin/gdrive-select-and-drag/issues"
   },
-  "homepage": "https://github.com/weichen-lin/rectangle-selection#readme",
+  "homepage": "https://github.com/weichen-lin/gdrive-select-and-drag",
   "devDependencies": {
     "@babel/core": "^7.23.2",
     "@babel/preset-react": "^7.22.15",

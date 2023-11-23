@@ -17,6 +17,8 @@ export { DragStatus }
 
 export default class Selectable {
   public selectBoundary!: HTMLElement
+  public select_cb?: (...args: any[]) => any
+  public drag_cb?: DragCallback
   private readonly _selectContainer!: HTMLElement
   private readonly _selectArea!: HTMLElement
   private readonly _document = window?.document
@@ -27,11 +29,9 @@ export default class Selectable {
   private _gonnaStartDrag: boolean = false
   private _cacheLastElement: string = ''
   private _isDragging: boolean = false
-  private lastMouseDownTime = new Date().getTime()
+  public lastMouseDownTime = new Date().getTime()
   private numLabelWith: number = 0
   private readonly _initMouseDown = new DOMRect()
-  private readonly select_cb!: (...args: any[]) => any
-  private readonly drag_cb?: DragCallback
   private readonly transformFunc?: TransformMethod
 
   private _selectionStore: selectionStore = {
@@ -45,11 +45,6 @@ export default class Selectable {
   }
 
   constructor(params: selectionParams) {
-    if (!params.boundary) {
-      console.log('do not have boundary yet')
-      return
-    }
-
     for (const key of Object.getOwnPropertyNames(Object.getPrototypeOf(this))) {
       if (typeof (this as any)[key] === 'function') {
         ;(this as any)[key] = (this as any)[key].bind(this)
@@ -60,13 +55,21 @@ export default class Selectable {
     this._selectArea = this._document.createElement('div')
     this._selectArea.classList.add(params.selectAreaClassName)
     this._selectContainer.appendChild(this._selectArea)
-    this.selectBoundary = params.boundary
     this._canStartSelect = params.canStartSelect
     this._dragContainer = this._document.createElement('div')
     this._dragContainer.id = 'dragContainer'
     this.select_cb = params.select_cb
     this.drag_cb = params.drag_cb
     this.transformFunc = params.transformFunc
+  }
+
+  init = (boundary: HTMLDivElement) => {
+    if (!this._document) {
+      console.log('do not have document yet')
+      return
+    }
+
+    this.selectBoundary = boundary
 
     // stying area
     addCss(this._selectContainer, {
@@ -224,7 +227,7 @@ export default class Selectable {
 
     if (this._needClearStored) {
       this._selectionStore.stored.length = 0
-      this.select_cb(this._selectionStore)
+      this.select_cb && this.select_cb(this._selectionStore.stored)
     }
 
     if (this._cacheLastElement !== '') {
@@ -421,7 +424,7 @@ export default class Selectable {
       }
     }
 
-    this.select_cb(this._selectionStore)
+    this.select_cb && this.select_cb(this._selectionStore.stored)
 
     this._selectionStore.changed.added.length = 0
     this._selectionStore.changed.removed.length = 0
