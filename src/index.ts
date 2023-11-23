@@ -1,6 +1,6 @@
 import addCss from './utils/addCss'
 import intersects from './utils/intersects'
-import checkClickStatus from './utils/clickStatus'
+import mouseEventOn from './utils/mouseEventOn'
 import makeNum, { NUM_ELEMENT_ID } from './utils/makeNum'
 
 import {
@@ -10,15 +10,16 @@ import {
   StoreAction,
   TransformMethod,
   DragStatus,
+  DragCallback,
 } from './utils/types'
 
 export { DragStatus }
 
 export default class Selectable {
+  public selectBoundary!: HTMLElement
   private readonly _selectContainer!: HTMLElement
   private readonly _selectArea!: HTMLElement
   private readonly _document = window?.document
-  private readonly _selectBoundary!: HTMLElement
   private readonly _dragContainer!: HTMLElement
   private readonly _canStartSelect!: boolean
   private _isMouseDownAtSelectBoundary: boolean = false
@@ -30,7 +31,7 @@ export default class Selectable {
   private numLabelWith: number = 0
   private readonly _initMouseDown = new DOMRect()
   private readonly select_cb!: (...args: any[]) => any
-  private readonly drag_cb!: (...args: any[]) => any
+  private readonly drag_cb?: DragCallback
   private readonly transformFunc?: TransformMethod
 
   private _selectionStore: selectionStore = {
@@ -59,7 +60,7 @@ export default class Selectable {
     this._selectArea = this._document.createElement('div')
     this._selectArea.classList.add(params.selectAreaClassName)
     this._selectContainer.appendChild(this._selectArea)
-    this._selectBoundary = params.boundary
+    this.selectBoundary = params.boundary
     this._canStartSelect = params.canStartSelect
     this._dragContainer = this._document.createElement('div')
     this._dragContainer.id = 'dragContainer'
@@ -102,7 +103,7 @@ export default class Selectable {
     this._document.body.appendChild(this._selectContainer)
     this._document.body.appendChild(this._dragContainer)
 
-    this._selectBoundary.addEventListener('mousedown', this.onMouseDown)
+    this.selectBoundary.addEventListener('mousedown', this.onMouseDown)
   }
 
   onMouseDown = (evt: MouseEvent) => {
@@ -112,12 +113,12 @@ export default class Selectable {
     this.lastMouseDownTime = current
     if (!this._canStartSelect) {
       console.log('can"t start select now')
-      this._selectBoundary.removeEventListener('mousedown', this.onMouseDown)
+      this.selectBoundary.removeEventListener('mousedown', this.onMouseDown)
       return
     }
     this._document.addEventListener('mouseup', this.onMouseUp)
     const { clientX, clientY } = evt
-    const { scrollTop, scrollLeft } = this._selectBoundary
+    const { scrollTop, scrollLeft } = this.selectBoundary
 
     this._initMouseDown.x = clientX + scrollLeft
     this._initMouseDown.y = clientY + scrollTop
@@ -133,11 +134,11 @@ export default class Selectable {
       })
     })
 
-    const { isCtrlKey, isClickOnSelectable, onClickElement } = checkClickStatus(evt, this._selectionStore.canSelected)
+    const { isCtrlKey, mouseEventOnSelectable, targetElement } = mouseEventOn(evt, this._selectionStore.canSelected)
 
-    if (!onClickElement) {
+    if (!mouseEventOnSelectable) {
       this._needClearStored = true
-      const { x, y, right, bottom } = this._selectBoundary.getBoundingClientRect()
+      const { x, y, right, bottom } = this.selectBoundary.getBoundingClientRect()
       if (clientX - x > 0 && clientY - y > 0) {
         this._isMouseDownAtSelectBoundary = true
         addCss(this._selectContainer, {
@@ -151,12 +152,12 @@ export default class Selectable {
       return
     }
 
-    if (isCtrlKey && isClickOnSelectable) {
-      this.storeManipulate(onClickElement, (e: string) => {
+    if (isCtrlKey && mouseEventOnSelectable && targetElement) {
+      this.storeManipulate(targetElement, (e: string) => {
         return this._selectionStore.stored.includes(e) ? StoreAction.Delete : StoreAction.Add
       })
-    } else if (!isCtrlKey && isClickOnSelectable) {
-      const isStoredAlready = this._selectionStore.stored.includes(onClickElement)
+    } else if (!isCtrlKey && mouseEventOnSelectable && targetElement) {
+      const isStoredAlready = this._selectionStore.stored.includes(targetElement)
 
       if (!isStoredAlready) {
         const currentElement = Array.from(this._selectionStore.stored)
@@ -164,13 +165,13 @@ export default class Selectable {
         this.storeManipulate(currentElement, (e: string) => {
           return this._selectionStore.stored.includes(e) ? StoreAction.Delete : StoreAction.Add
         })
-        this.storeManipulate(onClickElement, (e: string) => {
+        this.storeManipulate(targetElement, (e: string) => {
           return this._selectionStore.stored.includes(e) ? StoreAction.Delete : StoreAction.Add
         })
         return
       }
 
-      this._cacheLastElement = onClickElement
+      this._cacheLastElement = targetElement
       this._gonnaStartDrag = true
 
       this._selectionStore.stored.forEach(key => {
@@ -212,7 +213,7 @@ export default class Selectable {
     }
   }
 
-  onMouseUp = () => {
+  onMouseUp = (evt: MouseEvent) => {
     addCss(this._selectArea, {
       top: 0,
       left: 0,
@@ -236,13 +237,19 @@ export default class Selectable {
     this._gonnaStartDrag = false
 
     if (this._isDragging) {
-      this.drag_cb(
-        {
-          stored: [],
-          changed: { added: [], removed: [] },
-        },
-        DragStatus.End,
-      )
+      if (this.drag_cb) {
+        const { targetElement } = mouseEventOn(evt, this._selectionStore.canSelected)
+
+        if (targetElement) {
+          this.drag_cb(
+            this._selectionStore.stored,
+            DragStatus.End,
+            this._selectionStore.stored.includes(targetElement) ? null : targetElement,
+          )
+        } else {
+          this.drag_cb(this._selectionStore.stored, DragStatus.End, null)
+        }
+      }
       this.OnDragEnd(true)
     }
 
@@ -272,9 +279,9 @@ export default class Selectable {
       // x, y 已經是加上 scroll的長度了
       const { x, y } = this._initMouseDown
 
-      const { x: boundary_x, y: boundary_y } = this._selectBoundary.getBoundingClientRect()
+      const { x: boundary_x, y: boundary_y } = this.selectBoundary.getBoundingClientRect()
 
-      const { scrollLeft, scrollTop } = this._selectBoundary
+      const { scrollLeft, scrollTop } = this.selectBoundary
       const currentX = clientX + scrollLeft
       const currentY = clientY + scrollTop
 
@@ -315,7 +322,7 @@ export default class Selectable {
 
   onDelayMove = () => {
     this._cacheLastElement = ''
-    this.drag_cb(this._selectionStore, DragStatus.Start)
+    if (this.drag_cb) this.drag_cb(this._selectionStore.stored, DragStatus.Start, null)
 
     const targets = this._document.querySelector('#dragContainer')?.children
     if (targets?.length) {
@@ -421,7 +428,7 @@ export default class Selectable {
   }
 
   destroy = () => {
-    this._selectBoundary?.removeEventListener('mousedown', this.onMouseDown)
+    this.selectBoundary?.removeEventListener('mousedown', this.onMouseDown)
     this._document.removeEventListener('mousemove', this.onDelayMove)
     this._document.removeEventListener('mousemove', this.onMouseMove)
     this._document.removeEventListener('mousemove', this.onDragMovetoCursor)
