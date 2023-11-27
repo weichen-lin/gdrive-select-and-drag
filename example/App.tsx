@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react'
+import React, { useEffect, useRef, useState, useMemo } from 'react'
 import './index.css'
 import Selectable from '../src'
 
@@ -7,20 +7,25 @@ export default function App() {
   const ref = useRef<HTMLDivElement>(null)
   const [selected, setSelected] = useState<string[]>([])
 
-  useEffect(() => {
-    const selection = new Selectable({
+  const selectable = useMemo(() => {
+    return new Selectable({
       canStartSelect: true,
-      boundary: ref?.current as HTMLDivElement,
       selectAreaClassName: 'selection-area',
       selectablePrefix: 'selectable',
-      select_cb: e => {
-        setSelected([...e.stored])
+      select_cb: selected => {
+        setSelected([...selected])
       },
-      drag_cb: () => console.log('dragging'),
+      elementsExclude: ['test'],
     })
-
-    return () => selection.destroy()
   }, [])
+
+  const selectRef = useRef(selectable).current
+
+  useEffect(() => {
+    if (ref?.current && selectable.selectBoundary !== ref?.current) {
+      selectRef.init(ref?.current)
+    }
+  }, [ref?.current])
 
   return (
     <div className='container' ref={ref}>
@@ -31,6 +36,9 @@ export default function App() {
           data-key={`box-${i}`}
         />
       ))}
+      <div id='test' className='box-test'>
+        123
+      </div>
     </div>
   )
 }

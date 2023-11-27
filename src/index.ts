@@ -33,6 +33,7 @@ export default class Selectable {
   private numLabelWith: number = 0
   private readonly _initMouseDown = new DOMRect()
   private readonly transformFunc?: TransformMethod
+  private readonly _elementsExclude: string[]
 
   private _selectionStore: selectionStore = {
     stored: [],
@@ -61,6 +62,7 @@ export default class Selectable {
     this.select_cb = params.select_cb
     this.drag_cb = params.drag_cb
     this.transformFunc = params.transformFunc
+    this._elementsExclude = params?.elementsExclude ?? []
   }
 
   init = (boundary: HTMLDivElement) => {
@@ -140,7 +142,10 @@ export default class Selectable {
     const { isCtrlKey, mouseEventOnSelectable, targetElement } = mouseEventOn(evt, this._selectionStore.canSelected)
 
     if (!mouseEventOnSelectable) {
-      this._needClearStored = true
+      const excludes = this._elementsExclude.map(e => this._document.querySelector(`#${e}`))
+      const clickOnExcludeElement = excludes.map(e => e?.contains(evt.target as Node)).includes(true)
+
+      this._needClearStored = clickOnExcludeElement ? false : true
       const { x, y, right, bottom } = this.selectBoundary.getBoundingClientRect()
       if (clientX - x > 0 && clientY - y > 0) {
         this._isMouseDownAtSelectBoundary = true
