@@ -28,6 +28,7 @@ export interface selectionParams {
   drag_cb?: DragCallback
   transformFunc?: TransformMethod
   canStartSelect: boolean
+  placeAvoidCancelSelect?: string[]
 }
 
 export enum StoreAction {

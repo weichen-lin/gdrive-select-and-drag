@@ -6,17 +6,17 @@ interface EventOnSelectable {
   targetElement: string | null
 }
 
-export default (evt: MouseEvent, canSelected: Map<string, selectedElement>): EventOnSelectable => {
+export default (evt: MouseEvent, canSelected: Element[]): EventOnSelectable => {
   let mouseEventOnSelectable: boolean = false
   let targetElement: string | null = null
 
   const target = evt.target as Element
 
   canSelected.forEach((value, key) => {
-    const containsChecker = value.element.contains(target)
+    const containsChecker = value.contains(target)
     if (containsChecker) {
       mouseEventOnSelectable = containsChecker
-      targetElement = key
+      targetElement = `${key}`
     }
   })
 

@@ -33,6 +33,7 @@ export default class Selectable {
   private numLabelWith: number = 0
   private readonly _initMouseDown = new DOMRect()
   private readonly transformFunc?: TransformMethod
+  private readonly _placeAvoidCancelSelect?: string[]
 
   private _selectionStore: selectionStore = {
     stored: [],
@@ -61,6 +62,7 @@ export default class Selectable {
     this.select_cb = params.select_cb
     this.drag_cb = params.drag_cb
     this.transformFunc = params.transformFunc
+    this._placeAvoidCancelSelect = params.placeAvoidCancelSelect
   }
 
   init = (boundary: HTMLDivElement) => {
@@ -137,10 +139,18 @@ export default class Selectable {
       })
     })
 
-    const { isCtrlKey, mouseEventOnSelectable, targetElement } = mouseEventOn(evt, this._selectionStore.canSelected)
+    const { isCtrlKey, mouseEventOnSelectable, targetElement } = mouseEventOn(
+      evt,
+      Array.from(this._selectionStore.canSelected).map(e => e[1].element),
+    )
 
     if (!mouseEventOnSelectable) {
-      this._needClearStored = true
+      const avoidElements =
+        this._placeAvoidCancelSelect?.map(e => this._document.querySelector(`#${e}`))?.filter(e => e !== null) ?? []
+
+      const { mouseEventOnSelectable: avoidMouseEventOnSelectable } = mouseEventOn(evt, avoidElements as Element[])
+
+      this._needClearStored = avoidMouseEventOnSelectable ? false : true
       const { x, y, right, bottom } = this.selectBoundary.getBoundingClientRect()
       if (clientX - x > 0 && clientY - y > 0) {
         this._isMouseDownAtSelectBoundary = true
@@ -241,7 +251,10 @@ export default class Selectable {
 
     if (this._isDragging) {
       if (this.drag_cb) {
-        const { targetElement } = mouseEventOn(evt, this._selectionStore.canSelected)
+        const { targetElement } = mouseEventOn(
+          evt,
+          Array.from(this._selectionStore.canSelected).map(e => e[1].element),
+        )
 
         if (targetElement) {
           this.drag_cb(
